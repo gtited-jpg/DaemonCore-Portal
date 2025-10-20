@@ -1,11 +1,14 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
+  apiKey: "AIzaSyCE1F7p_6tcJ8U7pYaVbbR7xC2-rNKnqPs",
+  authDomain: "nexus-a317c.firebaseapp.com",
+  projectId: "nexus-a317c",
+  storageBucket: "nexus-a317c.appspot.com",
+  messagingSenderId: "127427301669",
+  appId: "1:127427301669:web:1c28c82f832a933fdd0acc",
+  measurementId: "G-NZ2C6LGR1Y"
 };
+
 
 export const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
