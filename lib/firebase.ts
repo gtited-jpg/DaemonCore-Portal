@@ -14,4 +14,7 @@ const firebaseConfig = {
 
 // Initialize Firebase
 export const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-export const analytics = getAnalytics(app);
+
+// ✅ Only load analytics in the browser
+export const analytics =
+  typeof window !== "undefined" ? getAnalytics(app) : null;
