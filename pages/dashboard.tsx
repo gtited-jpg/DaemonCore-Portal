@@ -19,6 +19,7 @@ type Order = {
 export default function Dashboard() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -26,6 +27,7 @@ export default function Dashboard() {
     const unsub = onAuthStateChanged(auth, async (user) => {
       if (user?.email) {
         setUserEmail(user.email);
+        setUserName(user.displayName || user.email.split("@")[0]);
         try {
           const res = await fetch(`/api/orders?email=${encodeURIComponent(user.email)}`);
           const data = await res.json();
@@ -46,78 +48,168 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <main style={{ padding: 24 }}>
-      <h1 className="text-2xl font-bold">Your Products</h1>
+    <main
+      style={{
+        minHeight: "100vh",
+        background:
+          "radial-gradient(circle at 20% 20%, rgba(139,92,246,0.25), transparent 60%), radial-gradient(circle at 80% 80%, rgba(124,58,237,0.3), transparent 70%), #0b0b0f",
+        color: "#fff",
+        fontFamily: "Inter, sans-serif",
+        padding: "2rem",
+      }}
+    >
+      <header style={{ marginBottom: "2rem", textAlign: "center" }}>
+        <h1
+          style={{
+            fontSize: "2rem",
+            fontWeight: 700,
+            background: "linear-gradient(90deg,#8b5cf6,#7c3aed)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}
+        >
+          Welcome back{userName ? `, ${userName}` : ""} 👋
+        </h1>
+        <p style={{ opacity: 0.8 }}>
+          Access your DaemonCore purchases, license keys, and receipts below.
+        </p>
+      </header>
 
-      {!userEmail && <p>Please sign in to view purchases.</p>}
-      {userEmail && loading && <p>Loading your purchases…</p>}
-      {userEmail && !loading && orders.length === 0 && (
-        <p>No purchases found for {userEmail}.</p>
+      {loading && <p style={{ textAlign: "center" }}>Fetching your cosmic data...</p>}
+
+      {!loading && userEmail && orders.length === 0 && (
+        <p style={{ textAlign: "center" }}>
+          No purchases found for <strong>{userEmail}</strong>.
+        </p>
       )}
 
-      <div
+      {!loading && orders.length > 0 && (
+        <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+          <div
+            style={{
+              display: "inline-block",
+              padding: "0.75rem 1.25rem",
+              borderRadius: "9999px",
+              background: "rgba(139,92,246,0.15)",
+              border: "1px solid rgba(139,92,246,0.4)",
+            }}
+          >
+            You own <strong>{orders.length}</strong>{" "}
+            {orders.length === 1 ? "product" : "products"}
+          </div>
+        </div>
+      )}
+
+      <section
         style={{
           display: "grid",
-          gap: 16,
-          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-          marginTop: 16,
+          gap: "1.5rem",
+          gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
         }}
       >
         {orders.map((o) => (
           <div
             key={o.id}
             style={{
-              border: "1px solid #e5e7eb",
-              borderRadius: 12,
-              padding: 16,
-              background: "#fff",
+              borderRadius: "16px",
+              padding: "1.5rem",
+              background: "rgba(255,255,255,0.05)",
+              border: "1px solid rgba(139,92,246,0.3)",
+              boxShadow: "0 0 20px rgba(139,92,246,0.15)",
+              transition: "transform 0.25s ease, box-shadow 0.25s ease",
             }}
+            onMouseEnter={(e) =>
+              ((e.currentTarget.style.transform = "translateY(-4px) scale(1.02)"),
+              (e.currentTarget.style.boxShadow = "0 0 25px rgba(139,92,246,0.35)"))
+            }
+            onMouseLeave={(e) =>
+              ((e.currentTarget.style.transform = "none"),
+              (e.currentTarget.style.boxShadow = "0 0 20px rgba(139,92,246,0.15)"))
+            }
           >
-            <div style={{ fontWeight: 600 }}>{o.productName}</div>
-            <div style={{ opacity: 0.8, fontSize: 14 }}>{o.variantName}</div>
-            <div style={{ marginTop: 8, fontSize: 14 }}>
-              {o.total} • {o.status} {o.testMode ? "• TEST" : ""}
+            <h3 style={{ fontSize: "1.25rem", fontWeight: 600 }}>
+              {o.productName}{" "}
+              <span style={{ opacity: 0.8, fontSize: "0.9rem" }}>{o.variantName}</span>
+            </h3>
+
+            <div style={{ opacity: 0.8, fontSize: "0.9rem", marginTop: "0.25rem" }}>
+              {o.status} • {o.total} {o.testMode && "(Test Mode)"}
             </div>
+
             {o.licenseKey && (
               <div
                 style={{
-                  marginTop: 10,
-                  padding: "8px 10px",
-                  background: "#f3f4f6",
-                  borderRadius: 8,
+                  marginTop: "1rem",
+                  background: "rgba(255,255,255,0.1)",
+                  borderRadius: "8px",
+                  padding: "0.75rem",
                   fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-                  fontSize: 13,
+                  fontSize: "0.9rem",
                   wordBreak: "break-all",
                 }}
               >
-                License: {o.licenseKey}
+                🔑 License Key: {o.licenseKey}
                 {o.licenseStatus ? ` (${o.licenseStatus})` : ""}
               </div>
             )}
-            <div style={{ marginTop: 10 }}>
+
+            <div
+              style={{
+                marginTop: "1rem",
+                display: "flex",
+                gap: "0.75rem",
+                flexWrap: "wrap",
+              }}
+            >
               {o.receiptUrl && (
                 <a
                   href={o.receiptUrl}
                   target="_blank"
                   rel="noreferrer"
                   style={{
-                    padding: "8px 12px",
-                    border: "1px solid #111827",
-                    borderRadius: 8,
+                    background: "linear-gradient(90deg,#8b5cf6,#7c3aed)",
+                    color: "#fff",
+                    padding: "0.5rem 1rem",
+                    borderRadius: "8px",
                     textDecoration: "none",
-                    fontSize: 14,
+                    fontWeight: 500,
+                    fontSize: "0.9rem",
                   }}
                 >
                   View Receipt
                 </a>
               )}
+              <a
+                href="https://daemoncore.app/boilerplates.html"
+                target="_blank"
+                rel="noreferrer"
+                style={{
+                  background: "rgba(255,255,255,0.1)",
+                  color: "#fff",
+                  padding: "0.5rem 1rem",
+                  borderRadius: "8px",
+                  textDecoration: "none",
+                  fontWeight: 500,
+                  fontSize: "0.9rem",
+                  border: "1px solid rgba(255,255,255,0.2)",
+                }}
+              >
+                Explore More Kits
+              </a>
             </div>
-            <div style={{ marginTop: 8, opacity: 0.6, fontSize: 12 }}>
-              Order ID: {o.id}
+
+            <div
+              style={{
+                opacity: 0.6,
+                marginTop: "0.75rem",
+                fontSize: "0.8rem",
+              }}
+            >
+              Order ID: {o.id} • {new Date(o.createdAt).toLocaleDateString()}
             </div>
           </div>
         ))}
-      </div>
+      </section>
     </main>
   );
 }
