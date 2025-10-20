@@ -1,0 +1,12 @@
+# Dependencies
+node_modules/
+
+# Builds and caches
+.next/
+out/
+dist/
+.cache/
+.DS_Store
+
+# Env files
+.env*
