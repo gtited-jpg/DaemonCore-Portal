@@ -1,51 +1,43 @@
 import { useEffect, useRef } from "react";
 
 export default function Starfield() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const ref = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas?.getContext("2d");
-    if (!canvas || !ctx) return;
+    const c = ref.current;
+    const ctx = c?.getContext("2d");
+    if (!c || !ctx) return;
 
-    let width = (canvas.width = window.innerWidth);
-    let height = (canvas.height = window.innerHeight);
-    const stars = Array.from({ length: 400 }, () => ({
-      x: Math.random() * width,
-      y: Math.random() * height,
-      z: Math.random() * width,
+    let w = (c.width = window.innerWidth);
+    let h = (c.height = window.innerHeight);
+
+    const stars = Array.from({ length: 180 }, () => ({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      z: Math.random() * 0.8 + 0.2,
     }));
 
-    const draw = () => {
-      ctx.fillStyle = "rgba(11,11,15,0.6)";
-      ctx.fillRect(0, 0, width, height);
-      for (const star of stars) {
-        star.z -= 2;
-        if (star.z <= 0) star.z = width;
-        const k = 128 / star.z;
-        const px = star.x * k + width / 2;
-        const py = star.y * k + height / 2;
-        if (px < 0 || px >= width || py < 0 || py >= height) continue;
-        const size = (1 - star.z / width) * 2;
-        ctx.fillStyle = "rgba(140,100,255,1)";
-        ctx.fillRect(px, py, size, size);
-      }
-      requestAnimationFrame(draw);
+    const onResize = () => {
+      w = c.width = window.innerWidth;
+      h = c.height = window.innerHeight;
     };
+    window.addEventListener("resize", onResize);
 
-    draw();
-    const handleResize = () => {
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
+    const tick = () => {
+      ctx.clearRect(0, 0, w, h);
+      for (const s of stars) {
+        s.x += 0.15 * s.z;
+        if (s.x > w) s.x = 0;
+        ctx.globalAlpha = 0.45 + 0.45 * s.z;
+        ctx.fillStyle = "#bba6ff";
+        ctx.fillRect(s.x, s.y, 2 * s.z, 2 * s.z);
+      }
+      requestAnimationFrame(tick);
     };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    tick();
+
+    return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 z-0 pointer-events-none"
-    />
-  );
+  return <canvas ref={ref} style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none", opacity: 0.35 }} />;
 }

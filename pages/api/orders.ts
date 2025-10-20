@@ -1,4 +1,3 @@
-// pages/api/orders.ts
 import type { NextApiRequest, NextApiResponse } from "next";
 
 type LSOrder = {
@@ -20,9 +19,7 @@ type LSOrder = {
     urls?: { receipt?: string };
     test_mode: boolean;
   };
-  relationships?: {
-    ["license-keys"]?: { links: { related: string } };
-  };
+  relationships?: { ["license-keys"]?: { links: { related: string } } };
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -32,7 +29,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!email) return res.status(400).json({ error: "Missing email" });
 
   try {
-    // 1) Fetch all orders
     const ordersRes = await fetch("https://api.lemonsqueezy.com/v1/orders", {
       headers: {
         Authorization: `Bearer ${process.env.LEMONSQUEEZY_API_KEY}`,
@@ -50,19 +46,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const ordersJson = await ordersRes.json();
     const all: LSOrder[] = ordersJson.data || [];
+    const mine = all.filter((o) => o?.attributes?.user_email?.toLowerCase() === email.toLowerCase());
 
-    // 2) Filter to just this user's orders
-    const mine = all.filter(
-      (o) => o?.attributes?.user_email?.toLowerCase() === email.toLowerCase()
-    );
-
-    // 3) For each order, fetch its license keys (if any)
     const enriched = await Promise.all(
       mine.map(async (o) => {
         let licenseKey: string | null = null;
         let licenseStatus: string | null = null;
-
-        // Follow the relationship link if present
         const rel = o.relationships?.["license-keys"]?.links?.related;
         if (rel) {
           try {
@@ -74,10 +63,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               },
               cache: "no-store",
             });
-
             if (licRes.ok) {
               const licJson = await licRes.json();
-              const first = (licJson.data && licJson.data[0]) || null;
+              const first = licJson.data?.[0];
               if (first?.attributes) {
                 licenseKey = first.attributes.key || null;
                 licenseStatus = first.attributes.status || null;
@@ -91,7 +79,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           }
         }
 
-        // 4) Shape a clean object for the frontend
         const a = o.attributes;
         const item = a.first_order_item || ({} as any);
 

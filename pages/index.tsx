@@ -22,13 +22,9 @@ export default function SignIn() {
 
   return (
     <main style={{
-      minHeight:"100vh",
-      display:"grid",
-      placeItems:"center",
+      minHeight:"100vh", display:"grid", placeItems:"center",
       background:"radial-gradient(circle at 20% 20%, rgba(139,92,246,.25), transparent 60%), radial-gradient(circle at 80% 80%, rgba(124,58,237,.3), transparent 70%), #0b0b0f",
-      color:"#fff",
-      fontFamily:"Inter, sans-serif",
-      padding:"2rem"
+      color:"#fff", fontFamily:"Inter, sans-serif", padding:"2rem"
     }}>
       <div style={{
         maxWidth:480, width:"100%",
@@ -41,23 +37,16 @@ export default function SignIn() {
           fontSize:"2rem", fontWeight:800, margin:0,
           background:"linear-gradient(90deg,#8b5cf6,#7c3aed)",
           WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent"
-        }}>
-          DaemonCore Portal
-        </h1>
+        }}>DaemonCore Portal</h1>
         <p style={{opacity:.8, marginTop:8}}>Sign in with Google to access your products.</p>
 
-        <button
-          onClick={signIn}
-          style={{
-            marginTop:16, width:"100%",
-            background:"linear-gradient(90deg,#8b5cf6,#7c3aed)",
-            color:"#fff", border:"none",
-            padding:"12px 16px", borderRadius:10,
-            fontWeight:700, fontSize:16, cursor:"pointer"
-          }}
-        >
-          Continue with Google
-        </button>
+        <button onClick={signIn} style={{
+          marginTop:16, width:"100%",
+          background:"linear-gradient(90deg,#8b5cf6,#7c3aed)",
+          color:"#fff", border:"none",
+          padding:"12px 16px", borderRadius:10,
+          fontWeight:700, fontSize:16, cursor:"pointer"
+        }}>Continue with Google</button>
 
         <p style={{opacity:.6, fontSize:12, marginTop:12}}>
           By continuing you agree to the Terms & Privacy.

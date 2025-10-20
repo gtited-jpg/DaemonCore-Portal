@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getAuth, onAuthStateChanged, User } from "firebase/auth";
-import { app } from "./firebase";
+import { app } from "@/lib/firebase";
 import { useRouter } from "next/router";
 
 export default function useRequireAuth() {
@@ -9,11 +9,11 @@ export default function useRequireAuth() {
 
   useEffect(() => {
     const auth = getAuth(app);
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (!user) router.push("/");
-      else setUser(user);
+    const unsub = onAuthStateChanged(auth, (u) => {
+      if (!u) router.replace("/");
+      else setUser(u);
     });
-    return () => unsubscribe();
+    return () => unsub();
   }, [router]);
 
   return user;
